@@ -12,7 +12,7 @@ mapred-site.xml
 $HADOOP_PREFIX/bin/hadoop jar $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar grep input output 'dfs[a-z.]+'
 ```
 
-## TEX Job
+## TEZ Job
 mapred-site.xml  
 ```xml
 <configuration>
