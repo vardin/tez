@@ -1,0 +1,15 @@
+<configuration>
+  <property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn-tez</value>
+  </property>
+
+  <property>
+    <name>mapreduce.map.memory.mb</name>
+    <value>1024</value>
+  </property>
+  <property>
+    <name>mapreduce.reduce.memory.mb</name>
+    <value>1024</value>
+  </property>
+</configuration>

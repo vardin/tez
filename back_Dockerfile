@@ -1,0 +1,40 @@
+FROM localhost:5000/hadoop-test 
+
+# dev tools to build tez
+RUN apt-get update
+RUN apt-get install -y git libprotobuf-dev protobuf-compiler npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# to run bower as root
+RUN echo '{ "allow_root": true }' > /root/.bowerrc
+
+# install maven
+ENV MAVEN_VERSION 3.2.1
+RUN curl -s http://archive.apache.org/dist/maven/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar -xz -C /usr/local/
+RUN cd /usr/local \
+    && ln -s apache-maven-${MAVEN_VERSION} maven
+ENV MAVEN_HOME /usr/local/maven
+ENV PATH $PATH:$MAVEN_HOME/bin
+
+# download tez code, compile and copy jars
+ENV TEZ_VERSION 0.9.0
+ENV TEZ_DIST /usr/local/tez/tez-dist/target/tez-${TEZ_VERSION}
+RUN curl -s https://www.apache.org/dist/tez/${TEZ_VERSION}/apache-tez-${TEZ_VERSION}-src.tar.gz | tar -xz -C /usr/local/
+RUN cd /usr/local/apache-tez-${TEZ_VERSION}-src \
+    && mvn clean package -DskipTests=true -Dmaven.javadoc.skip=true
+RUN $BOOTSTRAP \
+    && $HADOOP_PREFIX/bin/hadoop dfsadmin -safemode leave \
+    && $HADOOP_PREFIX/bin/hadoop fs -put ${TEZ_DIST} /tez
+
+# add tez specific configs
+ADD tez-site.xml $HADOOP_PREFIX/etc/hadoop/tez-site.xml
+ADD mapred-site.xml $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
+
+# environment settings
+RUN echo 'TEZ_JARS=${TEZ_DIST}/*' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+RUN echo 'TEZ_LIB=${TEZ_DIST}/lib/*' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+RUN echo 'TEZ_CONF=/usr/local/hadoop/etc/hadoop' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+RUN echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+
+# execute hadoop bootstrap script
+CMD ["/etc/bootstrap.sh", "-d"]
