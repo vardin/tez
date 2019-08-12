@@ -18,15 +18,15 @@ RUN cd /usr/local/protobuf-2.5.0 && ./configure &&  make && make install
 RUN ldconfig
 
 # to run bower as root
-RUN echo '{ "allow_root": true }' > /root/.bowerrc
+#RUN echo '{ "allow_root": true }' > /root/.bowerrc
 
 # install maven
-ENV MAVEN_VERSION 3.2.2
-RUN curl -s http://archive.apache.org/dist/maven/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar -xz -C /usr/local/
-RUN cd /usr/local \
-    && ln -s apache-maven-${MAVEN_VERSION} maven
-ENV MAVEN_HOME /usr/local/maven
-ENV PATH $PATH:$MAVEN_HOME/bin
+#ENV MAVEN_VERSION 3.2.2
+#RUN curl -s http://archive.apache.org/dist/maven/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar -xz -C /usr/local/
+#RUN cd /usr/local \
+#    && ln -s apache-maven-${MAVEN_VERSION} maven
+#ENV MAVEN_HOME /usr/local/maven
+#ENV PATH $PATH:$MAVEN_HOME/bin
 
 # download tez code, compile and copy jars
 ENV TEZ_VERSION 0.7.1
